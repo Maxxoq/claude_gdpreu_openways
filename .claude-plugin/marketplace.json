@@ -1,0 +1,14 @@
+{
+  "name": "openways-gdpreu",
+  "description": "Check GDPR EU Agent — free, open-source Claude Code plugin by openways.ai",
+  "owner": { "name": "openways.ai", "url": "https://github.com/Maxxoq" },
+  "plugins": [
+    {
+      "name": "gdpreu",
+      "source": "./plugins/gdpreu",
+      "description": "Audits websites and codebases for EU cookie & tracking consent problems. Not legal advice.",
+      "category": "compliance",
+      "tags": ["gdpr", "eprivacy", "cookies", "consent", "privacy"]
+    }
+  ]
+}

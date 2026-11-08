@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8"><title>Špatný e-shop</title>
+<!-- Trackers fire immediately, no consent gating (L1, L3) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TEST123"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-TEST123');
+  document.cookie = "_ga=GA1.1.123456789.1700000000; max-age=63072000; path=/";
+  document.cookie = "_fbp=fb.1.1700000000.987654321; max-age=7776000; path=/";
+  document.cookie = "PHPSESSID=abc123; path=/";
+  document.cookie = "shop_ab_test=variant-b; max-age=2592000; path=/";
+  localStorage.setItem('_hjSessionUser_123', '{"id":"x"}');
+  new Image().src = "https://www.facebook.com/tr?id=123&ev=PageView";
+  // Fingerprinting before consent (L19)
+  const c = document.createElement('canvas'); c.getContext('2d').fillText('fp', 2, 2); c.toDataURL();
+</script>
+<style>
+  #cookie-bar{position:fixed;bottom:0;left:0;right:0;background:#222;color:#eee;padding:16px}
+  #cookie-bar .accept{background:#27ae60;color:#fff;font-size:20px;font-weight:700;padding:14px 40px;border:0}
+  #cookie-bar .settings{background:none;color:#555;font-size:12px;border:0;text-decoration:underline}
+</style></head>
+<body>
+<h1>Vítejte</h1><p>Naše produkty. <a href="/page2.html">Další stránka</a></p>
+<!-- Banner: accept only + settings, English text on a Czech site (L6, L7, L22) -->
+<div id="cookie-bar">We use cookies to improve your experience.
+  <button class="accept" onclick="document.getElementById('cookie-bar').remove(); document.cookie='consent=all; path=/'">Accept all</button>
+  <button class="settings" onclick="document.getElementById('prefs').style.display='block'">Settings</button>
+  <div id="prefs" style="display:none">
+    <label><input type="checkbox" checked disabled> Necessary</label>
+    <label><input type="checkbox" id="mkt" checked> Marketing</label>
+    <label><input type="checkbox" id="stat" checked> Statistics</label>
+    <button onclick="document.getElementById('cookie-bar').remove(); document.cookie='consent=custom; path=/'">Save settings</button>
+  </div>
+</div>
+</body></html>

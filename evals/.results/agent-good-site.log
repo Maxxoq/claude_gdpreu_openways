@@ -1,0 +1,56 @@
+> **Not legal advice.** This is an automated technical check. It can miss problems, report problems that are not real, or rely on rules that have changed. The data controller (you, your company or your client) is solely responsible for compliance, and a qualified person must review every finding. The authors of this tool accept no liability.
+
+# Cookie & tracking check: http://localhost:8722/ ("Dobrý e-shop"; site mode; target country: CZ)
+
+**Summary:** I ran the three-state crawl (no interaction, "reject all", "accept all"), visited `/page2.html` and `/cookies.html` after each choice, and read the page source and cookie policy. **I found no presumptive violations.** Nothing was set or requested before a choice. After "Odmítnout vše" only the consent cookie remained. Google Analytics loaded only after "Přijmout vše". The page source points to three gaps. Withdrawing consent does not delete the `_ga` cookies or stop GA on the open page. The settings layer has no button to save a choice. The cookie policy is very thin compared with what the site actually sets.
+
+**Tested:** 2026-11-08, Chromium via Playwright, locale `cs-CZ`, crawler 0.1.0. Pages: `/`, `/page2.html`, `/cookies.html`. Evidence is in `/tmp/gdpreu-localhost-8722/` (`evidence.json`, `summary.md`, `initial.png`).
+**Limits:** This is a local dev instance, so production may behave differently (CDN, tag manager config, A/B tests, geo-targeting). The crawler did not test withdrawing after accepting, the granular settings layer, or GPC; the findings on those come from reading the source. Banner clicking is heuristic. Tracker lists can miss things.
+
+## Presumptive violations
+None found by these checks.
+
+## Warnings
+| ID | Finding | Evidence | Suggested fix |
+|---|---|---|---|
+| L14 / GDPR art. 7(3) | Withdrawing consent doesn't take effect. If you click "Odmítnout vše" after accepting, the code only rewrites `cc_cookie=none` and hides the banner. It doesn't delete `_ga` / `_ga_GOOD1` (400 days), doesn't call `gtag('consent','update',{…:'denied'})`, and gtag.js keeps running on the open page. ÚOOÚ lists impossible withdrawal and a banner that ignores the user's choice as typical violations. Read from source only, so confirm it live. | `/` and `/page2.html` inline script: `function decide(v){ document.cookie='cc_cookie='+v…; if(v==='all') loadTrackers(); }`. There is no `else` branch. | In `decide('none')`: call `gtag('consent','update',{ad_storage:'denied',analytics_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'})`, expire `_ga` and every `_ga_*` (`max-age=0; path=/`, plus the domain variant on production), and ideally reload the page. |
+| L9 | The settings layer can't be used. "Nastavení" opens the "Nezbytné" and "Analytické" checkboxes, but there's no "Uložit volbu" button, so a granular choice can't be submitted. The checkbox isn't wired to anything. | `<div id="opts">…<input type="checkbox"> Analytické</div>` has no submit control. | Add a "Uložit výběr" button that saves the per-category choice and runs `loadTrackers()` only when "Analytické" is ticked. |
+| L16 | The banner mentions categories the site doesn't have. It says "analytické **a marketingové** cookies", but there's no marketing toggle and no marketing tracker was seen. | Banner text vs toggles `nezbytné`, `analytické`. | Remove "marketingové", or add the category with its own toggle. |
+| L16 | The policy is incomplete compared with what was observed. It doesn't list `_ga_GOOD1`, doesn't name Google as a recipient, and doesn't mention transfer to the USA. It gives `_ga` a lifetime of "2 roky", but the observed lifetime is 400 days (Chrome caps it, while the code requests 2 years). | `/cookies.html`: "cc_cookie – uložení volby, 6 měsíců. _ga – Google Analytics, 2 roky, jen se souhlasem." | Add every cookie (`_ga`, `_ga_<ID>`, `cc_cookie`) with its purpose, the real lifetime, the provider (Google Ireland / Google LLC) and the transfer basis. Also add controller details (GDPR art. 13). |
+| L14 | The cookie policy page has no "Nastavení cookies" link. | `/cookies.html` has no footer. | Add the same footer link there, since the policy page is where people go to change their choice. |
+| L21 | `_ga` and `_ga_GOOD1` are set without the `Secure` flag. This is not significant on localhost. | Inventory below. | Check the cookie flags on production over HTTPS. |
+
+## Needs human review
+| Item | Why automation stops here | Evidence |
+|---|---|---|
+| L24: GA transfers to the USA | The DPF status and Latombe appeal need a legal assessment. Several DPAs (AT, DK, SE, FR) have found default GA unlawful in the past. | `region1.google-analytics.com/g/collect?…tid=G-GOOD1` (accept only) |
+| ÚOOÚ information duty on the first layer | The banner has no link to the policy and doesn't name the provider. Whether the information is enough is for a person to judge. | Banner text, one sentence |
+| L17: proof of consent | The choice is stored only in the browser (`cc_cookie`), with no server log. | No log endpoint observed |
+| CMP identification | The crawler labelled `cc_cookie` as "orestbida CookieConsent", but the site uses a custom inline script that reuses the cookie name. | Inline `<script>` on `/` |
+
+## Observed facts
+- **Before any choice:** no cookies, no storage, no third-party requests (only the `/` document). Consent Mode `default` sets all four keys to `denied` at dataLayer index 0, and no `config` runs (L12 ok). No fingerprinting API calls (L19). No cookieless pings while consent is denied (L13).
+- **After "Odmítnout vše":** only `cc_cookie`. No tracker requests on `/`, `/page2.html` or `/cookies.html` (L4).
+- **After "Přijmout vše"** (calibration, L5): gtag.js `G-GOOD1`, a GA4 collect hit with `gcs=G111`, and the cookies `_ga` and `_ga_GOOD1`. The gtag.js request marked "before-choice" in the accept run was triggered by the click itself; the no-interaction run had no such request.
+- **Banner (L6–L8):** in Czech, with "Přijmout vše", "Odmítnout vše" and "Nastavení" on the first layer. All three are buttons with the same green background (`rgb(17,170,85)`), 16px/600 text and 38px height (widths 144, 160 and 124px). Reject takes one click, same as accept. "Analytické" is not pre-ticked.
+- **Withdrawal:** a footer link "Nastavení cookies" on `/` and `/page2.html` reopens the first layer.
+- **Language (L22):** banner and policy are in Czech, and `<html lang="cs">`.
+
+## Cookie inventory
+| Cookie / storage key | Domain | Lifetime | Party | Classified as | Seen before consent | After reject |
+|---|---|---|---|---|---|---|
+| `cc_cookie` | localhost | 180 days | 1st | consent state (likely necessary) | no | yes (expected) |
+| `_ga` | localhost | 400 days (code requests 2 years) | 1st (Google Analytics) | analytics, needs consent | no | no* |
+| `_ga_GOOD1` | localhost | 400 days | 1st (Google Analytics) | analytics, needs consent | no | no* |
+
+\*This is for a fresh reject. If you accept and then withdraw, the cookies stay (see the L14 warning).
+
+## Next steps
+1. **Fix withdrawal:** in `decide('none')`, update Consent Mode to denied, delete the `_ga*` cookies and reload. Then re-test: accept → Nastavení cookies → Odmítnout vše.
+2. **Add a save button to the settings layer** and connect the "Analytické" checkbox to it.
+3. **Expand `/cookies.html`:** all cookies, real lifetimes, Google as recipient, US transfer, controller details. Add the "Nastavení cookies" link to it as well.
+4. **Fix the banner text** ("marketingové") and add a policy link inside the banner.
+5. Have someone assess the GA transfer (L24) and whether to keep consent logs on the server.
+6. Re-run this check against production before go-live. For guidance, see ÚOOÚ's cookie material at uoou.gov.cz (consent, withdrawal, Czech-language information).
+
+*The data controller is responsible for compliance; have a qualified person review these findings.*

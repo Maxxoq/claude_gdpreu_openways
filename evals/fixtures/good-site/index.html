@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8"><title>Dobrý e-shop</title>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {ad_storage:'denied', analytics_storage:'denied', ad_user_data:'denied', ad_personalization:'denied'});
+  function loadTrackers(){
+    gtag('consent', 'update', {ad_storage:'granted', analytics_storage:'granted', ad_user_data:'granted', ad_personalization:'granted'});
+    var s=document.createElement('script'); s.src='https://www.googletagmanager.com/gtag/js?id=G-GOOD1'; document.head.appendChild(s);
+    gtag('js', new Date()); gtag('config','G-GOOD1');
+    document.cookie = "_ga=GA1.1.555.1700000000; max-age=63072000; path=/";
+  }
+  var choice = (document.cookie.match(/cc_cookie=([a-z]+)/)||[])[1];
+  if (choice === 'all') loadTrackers();
+  function decide(v){ document.cookie='cc_cookie='+v+'; max-age=15552000; path=/; Secure; SameSite=Lax'; document.getElementById('cc').style.display='none'; if(v==='all') loadTrackers(); }
+</script>
+<style>
+  #cc{position:fixed;bottom:0;left:0;right:0;background:#fff;color:#111;padding:16px;border-top:1px solid #ccc}
+  #cc button{background:#1a5;color:#fff;font-size:16px;font-weight:600;padding:10px 24px;border:0;margin-right:8px}
+</style></head>
+<body>
+<h1>Vítejte</h1><p>Produkty. <a href="/page2.html">Další</a></p>
+<footer><a href="/cookies.html">Zásady cookies</a> · <a href="#" onclick="document.getElementById('cc').style.display='block';return false">Nastavení cookies</a></footer>
+<div id="cc" role="dialog" aria-label="Souhlas s cookies">Používáme analytické a marketingové cookies jen s vaším souhlasem.
+  <button onclick="decide('all')">Přijmout vše</button>
+  <button onclick="decide('none')">Odmítnout vše</button>
+  <button onclick="document.getElementById('opts').style.display='block'">Nastavení</button>
+  <div id="opts" style="display:none"><label><input type="checkbox" checked disabled> Nezbytné</label><label><input type="checkbox"> Analytické</label></div>
+</div>
+<script>if (choice) document.getElementById('cc').style.display='none';</script>
+</body></html>

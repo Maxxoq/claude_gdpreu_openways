@@ -1,0 +1,11 @@
+{
+  "name": "gdpreu",
+  "displayName": "Check GDPR EU Agent",
+  "version": "0.1.0",
+  "description": "Audits websites and codebases for EU cookie & tracking consent problems (ePrivacy art. 5(3) + GDPR, 16 jurisdictions). Three-state browser crawl, static code scan, evidence report. Read-only. Not legal advice — the data controller is always responsible.",
+  "author": { "name": "openways.ai", "url": "https://github.com/Maxxoq" },
+  "homepage": "https://github.com/Maxxoq/claude_gdpreu_openways",
+  "repository": "https://github.com/Maxxoq/claude_gdpreu_openways",
+  "license": "MIT",
+  "keywords": ["gdpr", "eprivacy", "cookies", "consent", "privacy", "compliance", "audit"]
+}

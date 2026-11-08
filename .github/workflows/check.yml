@@ -1,0 +1,19 @@
+name: check
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: Generated skill and agent are in sync with prompt/ and references/
+        run: ./scripts/build.sh --check
+      - name: Syntax
+        run: for f in plugins/gdpreu/crawler/*.mjs plugins/gdpreu/scripts/*.mjs evals/*.mjs; do node --check "$f"; done
+      - name: Install Playwright + Chromium
+        run: |
+          mkdir -p "$RUNNER_TEMP/deps" && cd "$RUNNER_TEMP/deps" && npm init -y >/dev/null
+          npm install --silent playwright && npx playwright install --with-deps chromium
+      - name: Crawler and scanner evals (no AI calls)
+        run: GDPREU_DEPS="$RUNNER_TEMP/deps" ./evals/run.sh crawler
