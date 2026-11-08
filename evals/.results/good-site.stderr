@@ -1,3 +1,0 @@
-crawling http://localhost:8732/ — state: none
-crawling http://localhost:8732/ — state: reject
-crawling http://localhost:8732/ — state: accept
